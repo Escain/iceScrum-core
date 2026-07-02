@@ -1,7 +1,7 @@
 package org.icescrum.core.utils
 
-import javax.servlet.http.HttpSessionEvent
-import javax.servlet.http.HttpSessionListener
+import jakarta.servlet.http.HttpSessionEvent
+import jakarta.servlet.http.HttpSessionListener
 
 /*
  * Copyright (c) 2017 Kagilum SAS

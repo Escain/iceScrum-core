@@ -23,7 +23,7 @@
 
 package org.icescrum.core.services
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import grails.util.GrailsNameUtils
 import grails.validation.ValidationException
 import org.grails.comments.Comment

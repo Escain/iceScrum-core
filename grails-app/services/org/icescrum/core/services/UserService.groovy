@@ -27,7 +27,7 @@ import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.acl.AclEntry
 import grails.plugin.springsecurity.acl.AclSid
 import grails.plugin.springsecurity.userdetails.GrailsUser
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.filefilter.WildcardFileFilter

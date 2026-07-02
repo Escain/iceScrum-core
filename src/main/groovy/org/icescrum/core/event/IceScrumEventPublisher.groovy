@@ -25,8 +25,8 @@ package org.icescrum.core.event
 
 import grails.util.GrailsNameUtils
 import grails.util.Holders
-import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
-import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.grails.core.DefaultGrailsDomainClass
+import grails.core.GrailsApplication
 import org.hibernate.proxy.HibernateProxyHelper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

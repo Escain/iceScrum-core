@@ -26,7 +26,7 @@ package org.icescrum.core.services
 
 import grails.converters.JSON
 import grails.plugin.springsecurity.SpringSecurityUtils
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import grails.validation.ValidationException
 import groovy.xml.MarkupBuilder
 import org.icescrum.core.domain.*
@@ -808,7 +808,7 @@ class ProjectService extends IceScrumEventPublisher {
     def export(writer, Project project) {
         def builder = new MarkupBuilder(writer)
         builder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
-        def g = grailsApplication.mainContext.getBean('org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib')
+        def g = grailsApplication.mainContext.getBean('org.grails.plugins.web.taglib.ApplicationTagLib')
         builder.export(version: g.meta(name: "app.version")) {
             project.xml(builder)
         }

@@ -23,7 +23,7 @@
  */
 package org.icescrum.core.artefact
 
-import org.codehaus.groovy.grails.commons.ArtefactHandlerAdapter
+import grails.core.ArtefactHandlerAdapter
 
 abstract public class AbstractScrumArtefactHandler extends ArtefactHandlerAdapter {
     public AbstractScrumArtefactHandler(String type, Class<?> grailsClassType, Class<?> grailsClassImpl, String artefactSuffix) {

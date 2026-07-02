@@ -23,14 +23,20 @@
 package org.icescrum.core.utils
 
 import grails.converters.JSON
+import grails.core.GrailsApplication
 import grails.util.GrailsNameUtils
-import org.codehaus.groovy.grails.commons.*
-import org.codehaus.groovy.grails.support.proxy.DefaultProxyHandler
-import org.codehaus.groovy.grails.support.proxy.EntityProxyHandler
-import org.codehaus.groovy.grails.support.proxy.ProxyHandler
-import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
-import org.codehaus.groovy.grails.web.converters.marshaller.json.DomainClassMarshaller
-import org.codehaus.groovy.grails.web.json.JSONWriter
+import org.grails.core.artefact.DomainClassArtefactHandler
+import org.grails.core.support.proxy.DefaultProxyHandler
+import org.grails.core.support.proxy.EntityProxyHandler
+import org.grails.core.support.proxy.ProxyHandler
+import org.grails.datastore.mapping.model.PersistentEntity
+import org.grails.datastore.mapping.model.PersistentProperty
+import org.grails.datastore.mapping.model.types.Association
+import org.grails.datastore.mapping.model.types.Embedded
+import org.grails.datastore.mapping.model.types.ToOne
+import org.grails.web.converters.exceptions.ConverterException
+import org.grails.web.converters.marshaller.json.DomainClassMarshaller
+import org.grails.web.json.JSONWriter
 import org.icescrum.core.domain.User
 import org.springframework.beans.BeanWrapper
 import org.springframework.beans.BeanWrapperImpl
@@ -58,20 +64,20 @@ public class JSONIceScrumDomainClassMarshaller extends DomainClassMarshaller {
         JSONWriter writer = json.writer
         value = proxyHandler.unwrapIfProxy(value)
         Class<?> clazz = value.getClass()
-        GrailsDomainClass domainClass = grailsApplication.getDomainClass(clazz.name)
+        PersistentEntity domainClass = grailsApplication.mappingContext.getPersistentEntity(clazz.name)
         BeanWrapper beanWrapper = new BeanWrapperImpl(value)
         def configName = GrailsNameUtils.getShortName(clazz).toLowerCase()
         def config = propertiesMap."$configName"
         def requestConfig = getRequestConfig(configName)
 
-        def idValue = extractValue(value, domainClass.identifier)
-        def classValue = GrailsNameUtils.getShortName(domainClass.clazz.name)
+        def idValue = extractValue(value, domainClass.identity)
+        def classValue = GrailsNameUtils.getShortName(domainClass.javaClass.name)
 
         writer.object()
         writer.key('class').value(classValue)
         json.property('id', idValue)
 
-        List<GrailsDomainClassProperty> properties = domainClass.persistentProperties.toList()
+        List<PersistentProperty> properties = domainClass.persistentProperties.toList()
         if (requestConfig?.excludeAll) {
             properties = requestConfig?.dontExclude ? properties.findAll { requestConfig.dontExclude.contains(it.name) } : []
         } else {
@@ -90,7 +96,7 @@ public class JSONIceScrumDomainClassMarshaller extends DomainClassMarshaller {
             }
             properties.removeAll { it.name in excludes }
         }
-        properties.each { GrailsDomainClassProperty property ->
+        properties.each { PersistentProperty property ->
             marshallProperty(property, beanWrapper, writer, json, domainClass, config, requestConfig)
         }
 
@@ -122,27 +128,28 @@ public class JSONIceScrumDomainClassMarshaller extends DomainClassMarshaller {
         writer.endObject()
     }
 
-    private void marshallProperty(property, beanWrapper, writer, json, domainClass, config, requestConfig) {
+    private void marshallProperty(PersistentProperty property, beanWrapper, writer, json, PersistentEntity domainClass, config, requestConfig) {
         Object propertyValue = beanWrapper.getPropertyValue(property.name)
         if (property.type.isEnum()) {
             writer.key(property.name)
             json.convertAnother(propertyValue.toString())
-        } else if (!property.isAssociation()) {
+        } else if (!(property instanceof Association)) {
             writer.key(property.name)
             json.convertAnother(propertyValue)
         } else if (propertyValue == null) {
             writer.key(property.name)
             json.value(null)
         } else {
-            GrailsDomainClass referencedDomainClass = property.referencedDomainClass
-            if (referencedDomainClass == null || property.isEmbedded() || GrailsClassUtils.isJdk5Enum(property.type)) {
+            Association association = (Association) property
+            PersistentEntity referencedDomainClass = association.associatedEntity
+            if (referencedDomainClass == null || association instanceof Embedded) {
                 writer.key(property.name)
                 json.convertAnother(propertyValue)
-            } else if (property.isOneToOne() || property.isManyToOne() || property.isEmbedded()) {
+            } else if (association instanceof ToOne) {
                 writer.key(property.name)
-                asShortObject(propertyValue, json, referencedDomainClass.identifier, referencedDomainClass)
+                asShortObject(propertyValue, json, referencedDomainClass.identity, referencedDomainClass)
             } else {
-                GrailsDomainClassProperty referencedIdProperty = referencedDomainClass.identifier
+                PersistentProperty referencedIdProperty = referencedDomainClass.identity
                 if (propertyValue instanceof Collection) {
                     Collection o = (Collection) propertyValue
                     if (config.withIds?.contains(property.name) || requestConfig?.withIds?.contains(property.name)) {
@@ -155,7 +162,7 @@ public class JSONIceScrumDomainClassMarshaller extends DomainClassMarshaller {
                         }
                         writer.endArray()
                     } else if (!propertyValue.hasProperty(property.name + '_count')) {
-                        int count = domainClass.clazz.withSession { session ->
+                        int count = domainClass.javaClass.withSession { session ->
                             session.createFilter(propertyValue, 'select count(*)').uniqueResult()
                         }
                         writer.key(property.name + '_count').value(count)
@@ -216,7 +223,7 @@ public class JSONIceScrumDomainClassMarshaller extends DomainClassMarshaller {
     }
 
     @Override
-    protected void asShortObject(Object refObj, JSON json, GrailsDomainClassProperty idProperty, GrailsDomainClass referencedDomainClass) throws ConverterException {
+    protected void asShortObject(Object refObj, JSON json, PersistentProperty idProperty, PersistentEntity referencedDomainClass) throws ConverterException {
         Object idValue
         if (proxyHandler instanceof EntityProxyHandler) {
             idValue = ((EntityProxyHandler) proxyHandler).getProxyIdentifier(refObj)

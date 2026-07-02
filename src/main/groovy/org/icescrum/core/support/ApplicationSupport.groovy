@@ -30,9 +30,6 @@ import grails.util.GrailsNameUtils
 import grails.util.Holders
 import grails.util.Metadata
 import groovy.sql.Sql
-import groovyx.net.http.ContentType
-import groovyx.net.http.HTTPBuilder
-import groovyx.net.http.Method
 import org.apache.commons.lang.WordUtils
 import org.apache.commons.logging.LogFactory
 import org.apache.http.HttpHost
@@ -54,9 +51,9 @@ import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.impl.client.SystemDefaultHttpClient
 import org.apache.http.protocol.BasicHttpContext
 import org.apache.http.util.EntityUtils
-import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
-import org.codehaus.groovy.grails.web.util.WebUtils
+import grails.web.mvc.GrailsApplicationAttributes
+import org.grails.web.servlet.mvc.GrailsWebRequest
+import org.grails.web.util.WebUtils
 import org.icescrum.core.app.AppDefinition
 import org.icescrum.core.domain.*
 import org.icescrum.core.domain.security.Authority
@@ -74,8 +71,8 @@ import org.springframework.security.web.FilterInvocation
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import javax.imageio.ImageIO
-import javax.servlet.FilterChain
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
 import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics2D
@@ -223,7 +220,7 @@ class ApplicationSupport {
 
     static public checkInitialConfig = { config ->
         try {
-            ApplicationSupport.forName("javax.servlet.http.Part") // Check if Tomcat version is compatible
+            ApplicationSupport.forName("jakarta.servlet.http.Part") // Check if Tomcat version is compatible
         } catch (ClassNotFoundException) {
             addWarning('http-error', 'warning', [code: 'is.warning.httpPart.title'], [code: 'is.warning.httpPart.message'])
             config.icescrum.push.enable = false
@@ -1002,52 +999,44 @@ class ApplicationSupport {
 
     static getMetaFromPage(String url, def extraAttributes = [], boolean ignoreSsl = false) {
         def data = [:]
-        def http = new HTTPBuilder(url)
-        if (ignoreSsl) {
-            http.ignoreSSLIssues()
-        }
-        http.getClient().getParams().setParameter("http.connection.timeout", 5000)
-        http.getClient().getParams().setParameter("http.socket.timeout", 5000)
         try {
-            http.request(Method.GET, ContentType.HTML) {
-                headers.'User-Agent' = "Mozilla/5.0 Firefox/3.0.4"
-                response.success = { resp, html ->
-                    def metaData = html.HEAD.META
-                    def metas = [:]
-                    metaData.depthFirst().each { tag ->
-                        tag.each {
-                            def meta = it.attributes()
-                            metas[meta.property ?: meta.name] = meta.content
-                        }
+            SimpleHttp.Response resp = SimpleHttp.get(url, ['User-Agent': "Mozilla/5.0 Firefox/3.0.4"], 5000, 5000, ignoreSsl)
+            if (resp.success) {
+                def html = org.jsoup.Jsoup.parse(resp.body ?: '')
+                def metas = [:]
+                html.select('meta').each { meta ->
+                    def key = meta.attr('property') ?: meta.attr('name')
+                    if (key) {
+                        metas[key] = meta.attr('content')
                     }
-                    if (metas['og:title']) {
-                        data.title = metas['og:title']
-                    } else if (metas.title) {
-                        data.title = metas.title
-                    } else {
-                        data.title = html.HEAD.TITLE ? html.HEAD.TITLE.text() : 'Document'
-                    }
-                    if (metas['og:url']) {
-                        data.url = metas['og:url']
-                    }
-                    if (metas['og:type']) {
-                        data.type = metas['og:type']
-                    }
-                    if (metas['og:image']) {
-                        data.image = metas['og:image']
-                    }
-                    if (metas['og:description']) {
-                        data.description = metas['og:description']
-                    } else if (metas.description) {
-                        data.description = metas.description
-                    }
-                    if (metas['og:site_name']) {
-                        data.site_name = metas['og:site_name']
-                    }
-                    extraAttributes.each { extraAttribute ->
-                        if (metas[extraAttribute]) {
-                            data[extraAttribute] = metas[extraAttribute]
-                        }
+                }
+                if (metas['og:title']) {
+                    data.title = metas['og:title']
+                } else if (metas.title) {
+                    data.title = metas.title
+                } else {
+                    data.title = html.title() ?: 'Document'
+                }
+                if (metas['og:url']) {
+                    data.url = metas['og:url']
+                }
+                if (metas['og:type']) {
+                    data.type = metas['og:type']
+                }
+                if (metas['og:image']) {
+                    data.image = metas['og:image']
+                }
+                if (metas['og:description']) {
+                    data.description = metas['og:description']
+                } else if (metas.description) {
+                    data.description = metas.description
+                }
+                if (metas['og:site_name']) {
+                    data.site_name = metas['og:site_name']
+                }
+                extraAttributes.each { extraAttribute ->
+                    if (metas[extraAttribute]) {
+                        data[extraAttribute] = metas[extraAttribute]
                     }
                 }
             }

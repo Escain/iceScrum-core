@@ -23,7 +23,7 @@ package org.icescrum.core.security.rest
 
 import grails.util.Holders
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 class TokenExtractor {
     static final String TOKEN_HEADER = "x-icescrum-token"

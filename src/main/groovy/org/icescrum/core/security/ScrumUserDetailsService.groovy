@@ -24,7 +24,7 @@ package org.icescrum.core.security
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.userdetails.GrailsUser
 import grails.plugin.springsecurity.userdetails.GrailsUserDetailsService
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.icescrum.core.domain.security.Authority
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.authority.SimpleGrantedAuthority

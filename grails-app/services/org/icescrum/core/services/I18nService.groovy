@@ -24,7 +24,7 @@
 
 package org.icescrum.core.services
 
-import org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib
+import org.grails.plugins.web.taglib.ValidationTagLib
 import org.icescrum.core.domain.User
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.servlet.i18n.SessionLocaleResolver
@@ -42,7 +42,7 @@ class I18nService {
         if (!_request) {
             args.locale = springSecurityService.isLoggedIn() ? User.getLocale(springSecurityService.principal.id) : localeResolver.defaultLocale
         }
-        ValidationTagLib validationTagLib = (ValidationTagLib) grailsApplication.mainContext.getBean('org.codehaus.groovy.grails.plugins.web.taglib.ValidationTagLib')
+        ValidationTagLib validationTagLib = (ValidationTagLib) grailsApplication.mainContext.getBean('org.grails.plugins.web.taglib.ValidationTagLib')
         def messageMethod = validationTagLib.message // Big hack because closure cannot be called directly because taglibs don't work without request
         return messageMethod(args)
     }

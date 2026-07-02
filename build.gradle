@@ -17,6 +17,7 @@ buildscript {
 }
 
 plugins {
+    id "war"
     id "idea"
     id "eclipse"
 }
@@ -55,11 +56,12 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-validation"
 
     // Security (was spring-security-core 2.0.0 / spring-security-acl 2.0.1 Grails 2 plugins)
-    implementation "org.grails.plugins:spring-security-core:7.0.0-M3"
-    implementation "org.grails.plugins:spring-security-acl:7.0.0-M3"
+    implementation "org.apache.grails:grails-spring-security:7.0.2"
+    implementation "org.apache.grails:grails-spring-security-acl:7.0.2"
 
-    // Mail (was org.icescrum:mail fork of grails-mail)
-    implementation "org.grails.plugins:mail:4.0.2"
+    // Mail: the grails mail plugin has no Grails 7 release; iceScrum's sendMail
+    // usage is reimplemented over Spring's JavaMailSender (see MailService)
+    implementation "org.springframework.boot:spring-boot-starter-mail"
 
     // Push (was atmosphere-meteor plugin + atmosphere-runtime 2.5.3)
     implementation("org.atmosphere:atmosphere-runtime:3.0.13") {
@@ -81,8 +83,19 @@ dependencies {
     // Feeds (was feeds 1.6 Grails 2 plugin)
     implementation "com.rometools:rome:2.1.0"
 
+    // Liquibase (was liquibase-core 2.0.5); version managed by the Grails BOM
+    implementation "org.liquibase:liquibase-core"
+
     // Was lib/loremipsum-1.0.jar
     implementation "de.sven-jacobs:loremipsum:1.0"
+
+    // Was transitive via the dead http-builder 0.7.2; ApplicationSupport still
+    // uses the HttpClient 4 API directly (modernization candidate)
+    implementation "org.apache.httpcomponents:httpclient:4.5.14"
+    implementation "commons-lang:commons-lang:2.6"
+    implementation "commons-io:commons-io:2.19.0"
+    // HTML parsing for ApplicationSupport.getMetaFromPage (was http-builder + NekoHTML)
+    implementation "org.jsoup:jsoup:1.21.1"
 
     runtimeOnly "cloud.wondrify:asset-pipeline-grails"
     runtimeOnly "com.h2database:h2"

@@ -25,7 +25,7 @@
 
 package org.icescrum.core.services
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.xml.StreamingMarkupBuilder
 import org.icescrum.core.domain.*
 import org.icescrum.core.utils.DateUtils

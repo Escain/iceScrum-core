@@ -26,7 +26,7 @@ import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.acl.AclClass
 import grails.plugin.springsecurity.acl.AclObjectIdentity
 import grails.plugin.springsecurity.acl.AclSid
-import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsHibernateUtil
+import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 import org.icescrum.core.domain.*
 import org.icescrum.core.domain.security.Authority
 import org.springframework.http.HttpMethod
@@ -35,7 +35,7 @@ import org.springframework.security.acls.domain.PrincipalSid
 import org.springframework.security.acls.model.*
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder as SCH
-import org.springframework.security.oauth2.provider.expression.OAuth2ExpressionUtils
+import org.icescrum.core.security.OAuth2Support
 import org.springframework.util.Assert
 import org.springframework.web.context.request.RequestContextHolder as RCH
 
@@ -261,7 +261,7 @@ class SecurityService {
     }
 
     boolean stakeHolder(project, auth, onlyPrivate, controllerName = null) {
-        if (OAuth2ExpressionUtils.isOAuth(auth)) {
+        if (OAuth2Support.isOAuth(auth)) {
             return false
         }
         if (!springSecurityService.isLoggedIn() && onlyPrivate) {
@@ -443,7 +443,7 @@ class SecurityService {
     }
 
     boolean portfolioStakeHolder(portfolio, auth) {
-        if (OAuth2ExpressionUtils.isOAuth(auth)) {
+        if (OAuth2Support.isOAuth(auth)) {
             return false
         }
         if (!springSecurityService.isLoggedIn()) {
@@ -656,14 +656,14 @@ class SecurityService {
     }
 
     private boolean isAuthorizedOAuth(auth, workspace) {
-        if (!OAuth2ExpressionUtils.isOAuth(auth)) {
+        if (!OAuth2Support.isOAuth(auth)) {
             return true
         }
         def request = RCH.requestAttributes.currentRequest
         if (workspace instanceof Closure) { // Allow dynamic resolution according to request
             workspace = workspace(request)
         }
-        return (request.method == HttpMethod.GET && OAuth2ExpressionUtils.hasAnyScope(auth, [workspace + ':read'] as String[])) || OAuth2ExpressionUtils.hasAnyScope(auth, [workspace] as String[])
+        return (request.method == HttpMethod.GET && OAuth2Support.hasAnyScope(auth, [workspace + ':read'] as String[])) || OAuth2Support.hasAnyScope(auth, [workspace] as String[])
     }
 
     private def getWorkspaceIdFromRequest(request, workspaceType) {

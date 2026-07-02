@@ -23,7 +23,7 @@
  */
 package org.icescrum.core.services
 
-import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsHibernateUtil
+import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 import org.grails.comments.Comment
 import org.icescrum.core.domain.*
 import org.icescrum.core.event.IceScrumEventType

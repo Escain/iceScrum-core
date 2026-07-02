@@ -2,9 +2,9 @@ package org.icescrum.core.cache
 
 import grails.plugin.cache.web.filter.WebKeyGenerator
 import grails.util.Holders
-import org.codehaus.groovy.grails.web.util.WebUtils
+import org.grails.web.util.WebUtils
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 class IsControllerWebKeyGenerator implements WebKeyGenerator {
 
