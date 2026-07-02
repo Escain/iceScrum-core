@@ -27,7 +27,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.icescrum.core.services.SecurityService;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -58,7 +58,7 @@ public class MethodScrumExpressionHandler implements MethodSecurityExpressionHan
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+    private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
     private PermissionEvaluator permissionEvaluator;
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private ExpressionParser expressionParser = new SpelExpressionParser();

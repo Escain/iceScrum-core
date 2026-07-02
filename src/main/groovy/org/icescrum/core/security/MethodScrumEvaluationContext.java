@@ -24,7 +24,7 @@
 package org.icescrum.core.security;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.core.Authentication;
@@ -51,7 +51,7 @@ class MethodScrumEvaluationContext extends StandardEvaluationContext {
      * allowing for caching.
      */
     public MethodScrumEvaluationContext(Authentication user, MethodInvocation mi) {
-        this(user, mi, new LocalVariableTableParameterNameDiscoverer());
+        this(user, mi, new DefaultParameterNameDiscoverer());
     }
 
     public MethodScrumEvaluationContext(Authentication user, MethodInvocation mi,

@@ -23,8 +23,8 @@
 package org.icescrum
 
 import grails.converters.JSON
-import grails.core.ControllerArtefactHandler
-import grails.core.ServiceArtefactHandler
+import org.grails.core.artefact.ControllerArtefactHandler
+import org.grails.core.artefact.ServiceArtefactHandler
 import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils
@@ -32,7 +32,6 @@ import grails.plugins.Plugin
 import grails.util.GrailsClassUtils
 import org.icescrum.atmosphere.AtmosphereUser
 import org.icescrum.core.app.AppDefinitionArtefactHandler
-import org.icescrum.core.cache.IsControllerWebKeyGenerator
 import org.icescrum.core.cors.CorsFilter
 import org.icescrum.core.event.IceScrumEventPublisher
 import org.icescrum.core.event.IceScrumEventType
@@ -70,7 +69,7 @@ class IcescrumCoreGrailsPlugin extends Plugin {
     def version = "7.55"
     def grailsVersion = "7.0.0 > *"
     // EntryPointsArtefactHandler comes from the vendored entry-points plugin
-    def artefacts = [UiDefinitionArtefactHandler, AppDefinitionArtefactHandler, new EntryPointsArtefactHandler()]
+    List artefacts = [UiDefinitionArtefactHandler, AppDefinitionArtefactHandler, new EntryPointsArtefactHandler()]
     def watchedResources = [
             "file:./grails-app/icescrum/*UiDefinition.groovy",
             "file:../plugins/*/grails-app/icescrum/*UiDefinition.groovy",
@@ -161,7 +160,6 @@ class IcescrumCoreGrailsPlugin extends Plugin {
                 useReferer = SpringSecurityUtils.securityConfig.logout.redirectToReferer // false
             }
 
-            webCacheKeyGenerator(IsControllerWebKeyGenerator)
 
             // Replaces Grails 2 doWithWebDescriptor: web.xml no longer exists with the
             // embedded servlet container, use Spring Boot registration beans instead.

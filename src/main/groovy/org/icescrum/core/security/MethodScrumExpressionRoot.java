@@ -60,11 +60,11 @@ public class MethodScrumExpressionRoot extends SecurityExpressionRoot {
     public final String admin = "administration";
 
     public boolean hasPermission(Object target, Object permission) {
-        return permissionEvaluator.hasPermission(authentication, target, permission);
+        return permissionEvaluator.hasPermission(getAuthentication(), target, permission);
     }
 
     public boolean hasPermission(Object targetId, String targetType, Object permission) {
-        return permissionEvaluator.hasPermission(authentication, (Serializable) targetId, targetType, permission);
+        return permissionEvaluator.hasPermission(getAuthentication(), (Serializable) targetId, targetType, permission);
     }
 
     public void setFilterObject(Object filterObject) {

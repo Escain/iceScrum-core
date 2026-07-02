@@ -22,7 +22,7 @@
 
 package org.icescrum.core.security;
 
-import grails.web.mvc.GrailsApplicationAttributes;
+import org.grails.web.util.GrailsApplicationAttributes;
 import org.icescrum.core.domain.Portfolio;
 import org.icescrum.core.domain.Project;
 import org.icescrum.core.domain.Team;

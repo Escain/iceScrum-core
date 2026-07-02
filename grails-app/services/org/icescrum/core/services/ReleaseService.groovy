@@ -24,6 +24,7 @@
 
 package org.icescrum.core.services
 
+import groovy.xml.XmlSlurper
 import grails.gorm.transactions.Transactional
 import org.icescrum.core.domain.*
 import org.icescrum.core.error.BusinessException

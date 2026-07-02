@@ -26,9 +26,9 @@ import grails.converters.JSON
 import grails.core.GrailsApplication
 import grails.util.GrailsNameUtils
 import org.grails.core.artefact.DomainClassArtefactHandler
-import org.grails.core.support.proxy.DefaultProxyHandler
-import org.grails.core.support.proxy.EntityProxyHandler
-import org.grails.core.support.proxy.ProxyHandler
+import grails.core.support.proxy.DefaultProxyHandler
+import grails.core.support.proxy.EntityProxyHandler
+import grails.core.support.proxy.ProxyHandler
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.PersistentProperty
 import org.grails.datastore.mapping.model.types.Association

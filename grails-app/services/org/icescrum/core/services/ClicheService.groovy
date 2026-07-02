@@ -25,6 +25,7 @@
 
 package org.icescrum.core.services
 
+import groovy.xml.XmlSlurper
 import grails.gorm.transactions.Transactional
 import groovy.xml.StreamingMarkupBuilder
 import org.icescrum.core.domain.*

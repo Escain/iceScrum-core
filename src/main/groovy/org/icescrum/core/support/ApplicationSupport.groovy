@@ -51,7 +51,7 @@ import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.impl.client.SystemDefaultHttpClient
 import org.apache.http.protocol.BasicHttpContext
 import org.apache.http.util.EntityUtils
-import grails.web.mvc.GrailsApplicationAttributes
+import org.grails.web.util.GrailsApplicationAttributes
 import org.grails.web.servlet.mvc.GrailsWebRequest
 import org.grails.web.util.WebUtils
 import org.icescrum.core.app.AppDefinition

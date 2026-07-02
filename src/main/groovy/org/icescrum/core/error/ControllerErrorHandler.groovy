@@ -4,7 +4,7 @@ import grails.converters.JSON
 import grails.validation.ValidationException
 import org.hibernate.ObjectNotFoundException
 import org.icescrum.core.support.ApplicationSupport
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException
+import org.springframework.orm.ObjectOptimisticLockingFailureException
 
 trait ControllerErrorHandler {
 
@@ -51,7 +51,7 @@ trait ControllerErrorHandler {
         returnError(status: 404, text: message(code: 'is.error.object.not.found', args: [objectNotFoundException.entityName, identifierString]))
     }
 
-    def hibernateOptimisticLockingFailureException(HibernateOptimisticLockingFailureException hibernateOptimisticLockingFailureException) {
+    def hibernateOptimisticLockingFailureException(ObjectOptimisticLockingFailureException hibernateOptimisticLockingFailureException) {
         def classString = "unknown"
         try {
             classString = hibernateOptimisticLockingFailureException.persistentClassName.split('\\.').last()

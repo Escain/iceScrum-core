@@ -24,6 +24,7 @@
 
 package org.icescrum.core.services
 
+import groovy.xml.XmlSlurper
 import grails.converters.JSON
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.gorm.transactions.Transactional

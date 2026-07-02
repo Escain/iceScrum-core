@@ -1,9 +1,9 @@
 package org.icescrum.core.utils
 
 
-import org.eclipse.mylyn.wikitext.core.parser.MarkupParser
-import org.eclipse.mylyn.wikitext.core.parser.builder.HtmlDocumentBuilder
-import org.eclipse.mylyn.wikitext.textile.core.TextileLanguage
+import org.eclipse.mylyn.wikitext.parser.MarkupParser
+import org.eclipse.mylyn.wikitext.parser.builder.HtmlDocumentBuilder
+import org.eclipse.mylyn.wikitext.textile.TextileLanguage
 
 /*
  * Copyright (c) 2015 Kagilum SAS
