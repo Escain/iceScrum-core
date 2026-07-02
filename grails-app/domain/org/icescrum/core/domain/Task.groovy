@@ -62,7 +62,11 @@ class Task extends BacklogElement implements Serializable {
             parentProject: Project
     ]
 
-    static hasMany = [participants: User]
+    SortedSet<Activity> activities
+    Set<MetaData> metaDatas
+
+    // activities/metaDatas: redeclared from BacklogElement (GORM 7 ignores hasMany on non-domain superclasses)
+    static hasMany = [participants: User, activities: Activity, metaDatas: MetaData]
 
     static transients = ['sprint', 'activity', 'tags']
 

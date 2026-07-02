@@ -493,7 +493,7 @@ class SecurityService {
     MutableAcl createAcl(ObjectIdentity objectIdentity, parent = null) throws AlreadyExistsException {
         Assert.notNull objectIdentity, 'Object Identity required'
         // Check this object identity hasn't already been persisted
-        if (aclService.retrieveObjectIdentity(objectIdentity)) {
+        if (retrieveObjectIdentity(objectIdentity)) {
             throw new AlreadyExistsException("Object identity '$objectIdentity' already exists")
         }
         // Need to retrieve the current principal, in order to know who "owns" this ACL (can be changed later on)
@@ -501,6 +501,15 @@ class SecurityService {
         // Create the acl_object_identity row
         createObjectIdentity objectIdentity, sid, parent
         return aclService.readAclById(objectIdentity)
+    }
+
+    // Was aclService.retrieveObjectIdentity, removed from the Grails 7 acl plugin
+    protected AclObjectIdentity retrieveObjectIdentity(ObjectIdentity objectIdentity) {
+        AclClass aclClass = AclClass.findByClassName(objectIdentity.type)
+        if (!aclClass) {
+            return null
+        }
+        return AclObjectIdentity.findByAclClassAndObjectId(aclClass, objectIdentity.identifier)
     }
 
     protected void createObjectIdentity(ObjectIdentity object, Sid owner, parent = null) {

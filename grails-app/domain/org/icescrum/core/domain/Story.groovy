@@ -71,7 +71,13 @@ class Story extends BacklogElement implements Cloneable, Serializable {
             dependsOn   : Story
     ]
 
+    SortedSet<Activity> activities
+    Set<MetaData> metaDatas
+
+    // activities/metaDatas: redeclared from BacklogElement (GORM 7 ignores hasMany on non-domain superclasses)
     static hasMany = [
+            activities     : Activity,
+            metaDatas      : MetaData,
             tasks          : Task,
             voters         : User,
             followers      : User,
@@ -87,8 +93,12 @@ class Story extends BacklogElement implements Cloneable, Serializable {
     static mapping = {
         cache true
         table 'is_story'
-        followers cache: true
-        voters cache: true
+        // Grails 7/Hibernate 5.6: voters and followers can no longer share the
+        // legacy is_story_is_user join table (join FK columns are now NOT NULL).
+        // Fresh schemas use one table per collection; upgrading an existing DB
+        // requires migrating rows out of is_story_is_user (see MIGRATION.md).
+        followers cache: true, joinTable: [name: 'is_story_followers', key: 'story_id', column: 'user_id']
+        voters cache: true, joinTable: [name: 'is_story_voters', key: 'story_id', column: 'user_id']
         tasks cache: true, cascade: 'all', batchSize: 25
         dependences cache: true, sort: "state", order: "asc"
         acceptanceTests sort: 'rank', batchSize: 10, cache: true

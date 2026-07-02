@@ -56,7 +56,11 @@ class Feature extends BacklogElement implements Serializable {
             parentRelease: Release
     ]
 
-    static hasMany = [stories: Story]
+    SortedSet<Activity> activities
+    Set<MetaData> metaDatas
+
+    // activities/metaDatas: redeclared from BacklogElement (GORM 7 ignores hasMany on non-domain superclasses)
+    static hasMany = [stories: Story, activities: Activity, metaDatas: MetaData]
 
     static mappedBy = [stories: "feature"]
 

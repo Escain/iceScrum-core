@@ -84,8 +84,12 @@ class MethodScrumEvaluationContext extends StandardEvaluationContext {
         Object targetObject = mi.getThis();
         Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(), targetObject.getClass());
         String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
-
-        for (int i = 0; i < args.length; i++) {
+        // The DefaultParameterNameDiscoverer (Spring 6) returns null for methods
+        // compiled without -parameters (e.g. GORM-generated statics)
+        if (paramNames == null) {
+            return;
+        }
+        for (int i = 0; i < args.length && i < paramNames.length; i++) {
             super.setVariable(paramNames[i], args[i]);
         }
     }

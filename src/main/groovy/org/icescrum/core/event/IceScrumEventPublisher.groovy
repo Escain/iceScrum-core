@@ -38,6 +38,12 @@ abstract class IceScrumEventPublisher {
     // hold closures reliably, so listeners are kept in a static map instead
     private static final Map listenersByDomain = [:].asSynchronized()
 
+    // Called when the application context (re)starts: the static registry would
+    // otherwise accumulate duplicate listeners across devtools restarts
+    static void clearListeners() {
+        listenersByDomain.clear()
+    }
+
     static void registerListener(String domain, IceScrumEventType eventType, Closure listener) {
         listener.delegate = this
         if (listenersByDomain[domain] == null) {

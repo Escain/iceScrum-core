@@ -143,6 +143,9 @@ class IcescrumCoreGrailsPlugin extends Plugin {
             restAuthenticationEntryPoint(Http403ForbiddenEntryPoint)
             restRequestCache(NullRequestCache)
 
+            // Replaces the atmosphere-meteor plugin bean of the same name
+            atmosphereMeteor(org.icescrum.atmosphere.AtmosphereMeteorCompat)
+
             SpringSecurityUtils.registerProvider 'tokenAuthenticationProvider'
             SpringSecurityUtils.registerFilter 'tokenAuthenticationFilter', SecurityFilterPosition.BASIC_AUTH_FILTER.order - 1
             SpringSecurityUtils.registerFilter 'restExceptionTranslationFilter', SecurityFilterPosition.EXCEPTION_TRANSLATION_FILTER.order + 1
@@ -205,6 +208,7 @@ class IcescrumCoreGrailsPlugin extends Plugin {
             // controllers now declare download()/preview() actions themselves (see
             // org.icescrum.core.support.AttachmentDownloadSupport).
         }
+        org.icescrum.core.event.IceScrumEventPublisher.clearListeners()
         application.serviceClasses.each {
             addListenerSupport(it, ctx)
         }
@@ -222,7 +226,9 @@ class IcescrumCoreGrailsPlugin extends Plugin {
         // Startup duties of the vendored taggable and entry-points plugin descriptors
         applicationContext.taggableService.refreshDomainClasses()
         applicationContext.entryPointsService.reload()
-        Map properties = application.config?.icescrum?.marshaller
+        // Grails 7: config returns NavigableMaps whose missing keys are NullSafeNavigators;
+        // the marshaller expects plain maps with null for missing keys
+        Map properties = plainify(application.config?.icescrum?.marshaller)
         JSON.registerObjectMarshaller(new JSONIceScrumDomainClassMarshaller(application, properties), 1)
         JSON.registerObjectMarshaller(AtmosphereUser) {
             def marshalledUser = [:]
@@ -281,6 +287,18 @@ class IcescrumCoreGrailsPlugin extends Plugin {
     void onConfigChange(Map<String, Object> event) {
         applicationContext.uiDefinitionService.reload()
         ((AppDefinitionService) applicationContext.appDefinitionService).reloadAppDefinitions()
+    }
+
+    private static Object plainify(Object value) {
+        if (value instanceof Map) {
+            def result = [:]
+            value.each { k, v -> result[k] = plainify(v) }
+            return result
+        }
+        if (value instanceof Collection) {
+            return value.collect { plainify(it) }
+        }
+        return value
     }
 
     private void addExportDomainsPlugins(source, config) {
