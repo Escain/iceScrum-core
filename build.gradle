@@ -23,7 +23,6 @@ plugins {
 }
 
 apply plugin: "org.apache.grails.gradle.grails-gsp"
-apply plugin: "cloud.wondrify.asset-pipeline"
 apply plugin: "org.apache.grails.gradle.grails-plugin"
 
 group = "org.icescrum"
@@ -110,8 +109,4 @@ compileJava.options.release = 17
 
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
-}
-
-assets {
-    packagePlugin = true
 }
