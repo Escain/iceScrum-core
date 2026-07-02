@@ -33,13 +33,13 @@ import org.slf4j.LoggerFactory
 
 abstract class IceScrumEventPublisher {
 
+    // Grails 7 migration: the registry used to live in grailsApplication.config,
+    // but the new config model (NavigableMap) converts stored maps and cannot
+    // hold closures reliably, so listeners are kept in a static map instead
+    private static final Map listenersByDomain = [:].asSynchronized()
+
     static void registerListener(String domain, IceScrumEventType eventType, Closure listener) {
         listener.delegate = this
-        GrailsApplication grailsApplication = Holders.grailsApplication
-        if (grailsApplication.config.icescrum.listenersByDomain == null) {
-            grailsApplication.config.icescrum.listenersByDomain = [:]
-        }
-        def listenersByDomain = grailsApplication.config.icescrum.listenersByDomain
         if (listenersByDomain[domain] == null) {
             listenersByDomain[domain] = [:]
         }
@@ -60,10 +60,10 @@ abstract class IceScrumEventPublisher {
     Map publishSynchronousEvent(IceScrumEventType type, object, Map dirtyProperties = extractDirtyProperties(type, object)) {
         logEvent(type, object, dirtyProperties)
         def domain = GrailsNameUtils.getPropertyNameRepresentation(HibernateProxyHelper.getClassWithoutInitializingProxy(object))
-        Holders.grailsApplication.config.icescrum.listenersByDomain.getAt(domain)?.getAt(type)?.each {
+        listenersByDomain.getAt(domain)?.getAt(type)?.each {
             it(type, object, dirtyProperties)
         }
-        Holders.grailsApplication.config.icescrum.listenersByDomain.getAt('*')?.getAt(type)?.each {
+        listenersByDomain.getAt('*')?.getAt(type)?.each {
             it(type, object, dirtyProperties)
         }
         return dirtyProperties

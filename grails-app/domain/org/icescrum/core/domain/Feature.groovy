@@ -64,6 +64,7 @@ class Feature extends BacklogElement implements Serializable {
         cache true
         table 'is_feature'
         stories cascade: "refresh", sort: 'rank', 'name': 'asc', batchSize: 25, cache: true
+        value column: '`value`' // VALUE is a reserved word in H2 2.x; backticks make Hibernate quote it in the dialect-specific way
         sort "id"
         metaDatas cascade: 'delete-orphan', batchSize: 10, cache: true // Doesn't work on BacklogElement
         activities cascade: 'delete-orphan', batchSize: 25, cache: true // Doesn't work on BacklogElement

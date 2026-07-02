@@ -24,6 +24,7 @@
 
 package org.icescrum.core.services
 
+import grails.gorm.transactions.Transactional
 import grails.util.GrailsNameUtils
 import org.apache.commons.io.FileUtils
 import org.hibernate.ObjectNotFoundException
@@ -42,6 +43,7 @@ import org.icescrum.core.support.ApplicationSupport
 import org.icescrum.plugins.attachmentable.domain.Attachment
 import org.icescrum.plugins.attachmentable.domain.AttachmentLink
 
+@Transactional // Grails 7: services are no longer implicitly transactional
 class AttachmentService extends IceScrumEventPublisher {
 
     def grailsApplication

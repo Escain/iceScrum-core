@@ -21,12 +21,14 @@
 
 package org.icescrum.core.services
 
+import grails.gorm.transactions.Transactional
 import org.icescrum.core.domain.Hook
 import org.icescrum.core.event.IceScrumEventType
 import org.icescrum.core.event.IceScrumListener
 import org.icescrum.core.support.ApplicationSupport
 import org.icescrum.core.support.SimpleHttp
 
+@Transactional // Grails 7: services are no longer implicitly transactional
 class HookListenerService {
 
     def grailsApplication

@@ -22,6 +22,7 @@
 
 package org.icescrum.core.services
 
+import grails.gorm.transactions.Transactional
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.acl.AclClass
 import grails.plugin.springsecurity.acl.AclObjectIdentity
@@ -41,6 +42,7 @@ import org.springframework.web.context.request.RequestContextHolder as RCH
 
 import static org.springframework.security.acls.domain.BasePermission.*
 
+@Transactional // Grails 7: services are no longer implicitly transactional
 class SecurityService {
 
     def aclUtilService

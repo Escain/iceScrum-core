@@ -238,7 +238,11 @@ class IcescrumCoreGrailsPlugin extends Plugin {
             } ?: []
             return marshalledUser
         }
-        applicationContext.bootStrapService.start()
+        // Grails 7: plugin lifecycle callbacks no longer run with a bound Hibernate
+        // session, so open one for the startup service
+        org.icescrum.core.domain.User.withNewSession {
+            applicationContext.bootStrapService.start()
+        }
     }
 
     @Override

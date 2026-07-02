@@ -23,6 +23,7 @@
  */
 package org.icescrum.core.services
 
+import grails.gorm.transactions.Transactional
 import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 import org.grails.comments.Comment
 import org.icescrum.core.domain.*
@@ -30,6 +31,7 @@ import org.icescrum.core.event.IceScrumEventType
 import org.icescrum.core.event.IceScrumListener
 import org.icescrum.plugins.attachmentable.domain.Attachment
 
+@Transactional // Grails 7: services are no longer implicitly transactional
 class ListenerService {
 
     def springSecurityService

@@ -23,6 +23,7 @@
 
 package org.icescrum.plugins.attachmentable.services
 
+import grails.gorm.transactions.Transactional
 import grails.util.GrailsNameUtils
 import grails.util.Holders
 import org.apache.commons.io.FileUtils
@@ -30,6 +31,7 @@ import org.apache.commons.io.FilenameUtils
 import org.icescrum.plugins.attachmentable.domain.Attachment
 import org.icescrum.plugins.attachmentable.domain.AttachmentLink
 
+@Transactional // Grails 7: services are no longer implicitly transactional
 class AttachmentableService {
 
     Attachment addAttachment(def poster, def attachmentable, def file, def originalName = null) {

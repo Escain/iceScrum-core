@@ -24,11 +24,13 @@
 
 package org.icescrum.core.services
 
+import grails.gorm.transactions.Transactional
 import org.grails.plugins.web.taglib.ValidationTagLib
 import org.icescrum.core.domain.User
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.servlet.i18n.SessionLocaleResolver
 
+@Transactional // Grails 7: services are no longer implicitly transactional
 class I18nService {
 
     boolean transactional = false

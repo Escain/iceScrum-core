@@ -23,11 +23,13 @@
 
 package org.icescrum.core.services
 
+import grails.gorm.transactions.Transactional
 import org.icescrum.core.domain.User
 import org.icescrum.core.domain.preferences.UserPreferences
 import org.icescrum.core.domain.security.Authority
 import org.icescrum.core.domain.security.UserAuthority
 
+@Transactional // Grails 7: services are no longer implicitly transactional
 class AuthorityService {
 
     def securityService

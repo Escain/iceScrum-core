@@ -1,7 +1,9 @@
 package org.grails.taggable
 
+import grails.gorm.transactions.Transactional
 import grails.util.*
 
+@Transactional // Grails 7: services are no longer implicitly transactional
 class TaggableService {
 
     def grailsApplication

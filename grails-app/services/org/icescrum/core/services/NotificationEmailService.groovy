@@ -21,6 +21,7 @@
  */
 package org.icescrum.core.services
 
+import grails.gorm.transactions.Transactional
 import org.grails.comments.Comment
 import org.icescrum.core.domain.*
 import org.icescrum.core.event.IceScrumEventType
@@ -31,6 +32,7 @@ import org.springframework.web.context.request.RequestContextHolder as RCH
 
 import java.util.concurrent.ThreadPoolExecutor
 
+@Transactional // Grails 7: services are no longer implicitly transactional
 class NotificationEmailService {
 
     def mailService
