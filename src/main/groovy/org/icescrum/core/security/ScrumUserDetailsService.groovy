@@ -50,7 +50,7 @@ class ScrumUserDetailsService implements GrailsUserDetailsService {
     def createUserDetails(def username, def user) {
         if (!user) {
             LoggerFactory.getLogger(getClass()).warn "User not found: $username"
-            throw new UsernameNotFoundException('User not found', username)
+            throw new UsernameNotFoundException("User not found: ${username}")
         }
         def authorities = user.authorities.collect {
             new SimpleGrantedAuthority(it.authority)
