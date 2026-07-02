@@ -49,7 +49,7 @@ class Feature extends BacklogElement implements Serializable {
     int type = Feature.TYPE_FUNCTIONAL
     int rank
 
-    static transients = ['countDoneStories', 'state', 'effort', 'inProgressDate', 'project', 'actualReleases']
+    static transients = ['countDoneStories', 'state', 'effort', 'inProgressDate', 'project', 'actualReleases', 'tags']
 
     static belongsTo = [
             portfolio    : Portfolio,

@@ -64,7 +64,7 @@ class Task extends BacklogElement implements Serializable {
 
     static hasMany = [participants: User]
 
-    static transients = ['sprint', 'activity']
+    static transients = ['sprint', 'activity', 'tags']
 
     static mapping = {
         cache true
