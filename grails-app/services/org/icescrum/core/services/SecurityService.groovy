@@ -678,11 +678,22 @@ class SecurityService {
     }
 
     private def getWorkspaceIdFromRequest(request, workspaceType) {
+        // Grails 7: the injected holder is an AOP-proxied wrapper whose match()
+        // eagerly resolves controller names and throws for \$controller-token
+        // mappings; we only need the raw mapping parameters, so unwrap down to
+        // the plain holder
+        def holder = grailsUrlMappingsHolder
+        if (holder instanceof org.springframework.aop.framework.Advised) {
+            holder = holder.targetSource.target
+        }
+        if (holder.hasProperty('urlMappingsHolderDelegate')) {
+            holder = holder.urlMappingsHolderDelegate
+        }
         def extractParam = { paramKey ->
             // Required because security checks can be done before filter execution and param decoding
             def paramValue = request.getParameter(paramKey) // Query parameter
             if (!paramValue) {
-                paramValue = grailsUrlMappingsHolder.match(request.forwardURI.replaceFirst(request.contextPath, ''))?.parameters?.getAt(paramKey) // URL mapping parameter
+                paramValue = holder.match(request.forwardURI.replaceFirst(request.contextPath, ''))?.parameters?.getAt(paramKey) // URL mapping parameter
             }
             return paramValue
         }
