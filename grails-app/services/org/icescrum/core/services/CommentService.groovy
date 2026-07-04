@@ -47,6 +47,9 @@ class CommentService extends IceScrumEventPublisher {
     Comment save(Object commentable, User poster, props) {
         commentable.addComment(poster, props.body)
         activityService.addActivity(commentable, poster, 'comment', commentable.name);
+        // addComment() saves the Comment + CommentLink without flushing; flush so the comments query below sees
+        // them (and so dateCreated is populated for the sort) — on PostgreSQL the un-flushed rows are invisible.
+        Comment.withSession { it.flush() }
         Comment comment = commentable.comments.sort { it.dateCreated }?.last() // Hack
         if (commentable instanceof Story) {
             ((Story) commentable).addToFollowers(poster)

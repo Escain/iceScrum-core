@@ -521,6 +521,10 @@ class SecurityService {
                 owner: ownerSid,
                 parent: parent,
                 entriesInheriting: true)
+        // Flush the GORM inserts (sid/class/object-identity) so the raw-JDBC readAclById in createAcl() sees
+        // them within the same transaction. Without this, PostgreSQL's lookup misses the un-flushed rows and
+        // throws NotFoundException (H2 happened to flush in time); the whole create then rolls back.
+        AclObjectIdentity.withSession { it.flush() }
     }
 
     public boolean owner(domain, Authentication auth) {
