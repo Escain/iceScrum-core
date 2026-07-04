@@ -363,12 +363,33 @@ class UserService extends IceScrumEventPublisher {
 
     User unMarshall(def userXml, def options) {
         User.withTransaction(readOnly: !options.save) { transaction ->
+            // Merge on import: if an account already exists locally (same uid, else same email, else same
+            // username) reuse it instead of creating a duplicate — which would otherwise fail the unique
+            // email/username constraints (e.g. the user performing the import is already a member).
+            def importedUid = userXml.@uid.text()
+            def importedEmail = userXml.email.text()
+            def importedUsername = userXml.username.text()
+            User existing = (importedUid ? User.findByUid(importedUid) : null) ?:
+                            (importedEmail ? User.findByEmail(importedEmail) : null) ?:
+                            (importedUsername ? User.findByUsername(importedUsername) : null)
+            if (existing) {
+                return existing
+            }
+            // Grails 7 / Spring Security 6: DelegatingPasswordEncoder requires an {id} prefix. Legacy or foreign
+            // exports store a bare hash (or a {salt}hash), which makes login throw at DaoAuthenticationProvider.
+            // Wrap anything not already tagged with the local {SHA-256} algorithm so it routes to that encoder.
+            // Leave the external-account placeholders untouched (they are markers, not hashes).
+            def importedPassword = userXml.password.text()
+            if (importedPassword && !importedPassword.startsWith('{SHA-256}')
+                    && importedPassword != 'passwordDefinedInIdp' && importedPassword != 'passwordDefinedExternally') {
+                importedPassword = '{SHA-256}' + importedPassword
+            }
             User user = new User(
                     lastName: userXml.lastName.text(),
                     firstName: userXml.firstName.text(),
                     username: userXml.username.text(),
                     email: userXml.email.text(),
-                    password: userXml.password.text(),
+                    password: importedPassword,
                     enabled: userXml.enabled.text().toBoolean(),
                     accountExpired: userXml.accountExpired.text().toBoolean(),
                     accountLocked: userXml.accountLocked.text().toBoolean(),

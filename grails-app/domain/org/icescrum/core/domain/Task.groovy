@@ -88,7 +88,7 @@ class Task extends BacklogElement implements Serializable {
         spent nullable: true, validator: { newSpent, task -> newSpent == null || newSpent >= 0 ?: 'invalid' }
         responsible nullable: true
         parentStory nullable: true, validator: { newParentStory, task -> newParentStory != null && newParentStory.backlog != task.parentProject ? 'invalid' : true }
-        parentProject validator: { newParentProject, task -> newParentProject == task.backlog?.parentProject || newParentProject == task.parentStory?.backlog ?: 'invalid' }
+        parentProject validator: { newParentProject, task -> newParentProject == task.sprintBacklog?.parentProject || newParentProject == task.parentStory?.backlog ?: 'invalid' } // sprintBacklog unproxies backlog (Grails 7 / Hibernate 5.6)
         inProgressDate nullable: true
     }
 
@@ -222,7 +222,7 @@ class Task extends BacklogElement implements Serializable {
         if (obj == null) {
             return false
         }
-        if (getClass() != obj.getClass()) {
+        if (org.hibernate.Hibernate.getClass(this) != org.hibernate.Hibernate.getClass(obj)) { // Grails 7/Hibernate 5.6: proxy-safe (obj may be a lazy proxy)
             return false
         }
         final Task other = (Task) obj
@@ -239,8 +239,14 @@ class Task extends BacklogElement implements Serializable {
         return true
     }
 
+    // Grails 7 / Hibernate 5.6: backlog is a lazy TimeBox proxy that cannot be cast straight to Sprint; unproxy first.
+    // Every `(Sprint) task.backlog` in the codebase should go through this helper.
+    Sprint getSprintBacklog() {
+        (Sprint) org.hibernate.Hibernate.unproxy(this.getBacklog())
+    }
+
     Map getSprint() {
-        def sprint = (Sprint) this.getBacklog()
+        def sprint = getSprintBacklog()
         return sprint ? [id: sprint.id, state: sprint.state, index: sprint.index, parentRelease: [id: sprint.parentRelease.id, name: sprint.parentRelease.name]] : [:]
     }
 

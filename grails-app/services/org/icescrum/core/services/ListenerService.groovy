@@ -241,7 +241,7 @@ class ListenerService {
                     pushService.broadcastToProjectRelatedChannels(IceScrumEventType.UPDATE, [class: 'Task', id: it.id, rank: it.rank, messageId: 'task-' + it.id + '-rank'], project.id)
                 }
             }
-            pushOtherRank(((Sprint) task.backlog)?.tasks)
+            pushOtherRank(task.sprintBacklog?.tasks)
             pushOtherRank(task.parentStory?.tasks)
         }
         if (dirtyProperties.containsKey('parentStory')) {

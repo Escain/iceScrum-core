@@ -81,7 +81,10 @@ class HookListenerService {
                 // Find the renderer
                 def payload = Class.forName("${eventMessageRendererClass ?: 'org.icescrum.core.hook.DefaultEventMessageRenderer'}").newInstance().render(objectToRender, events, dirtyProperties)
                 hooks.each { hook ->
-                    Hook.async.task {
+                    // Grails 7: GORM's async engine (Hook.async.task{}) was removed. Run the webhook dispatch
+                    // synchronously in the current Hibernate session so the lazy hook.events collection stays
+                    // initializable; the calls are bounded by the configured http/socket timeouts.
+                    Hook.withSession {
                         def eventToDisplay = events.size() > 1 ? hook.events.contains(events[1]) ? events[1] : events[0] : events // If we have update and state send the correct one
                         def requestHeaders = ['Content-Type': 'application/json', 'x-icescrum-event': eventToDisplay.toString()]
                         if (hook.secret) {
@@ -99,7 +102,7 @@ class HookListenerService {
                                 grailsApplication.config.icescrum.hooks.socketTimeout as int,
                                 hook.ignoreSsl as boolean)
                         if (!resp.success) {
-                            withTransaction {
+                            Hook.withTransaction {
                                 def hookToUpdate = Hook.get(hook.id)
                                 if (resp.status == 410) { // Case zapier or other restWebhook https://zapier.com/developer/documentation/v2/rest-hooks/#step-2-sending-hooks-a-call-from-your-app-to-zapier
                                     if (log.debugEnabled) {
@@ -117,7 +120,7 @@ class HookListenerService {
                                 }
                             }
                         } else {
-                            withTransaction {
+                            Hook.withTransaction {
                                 def hookToUpdate = Hook.get(hook.id)
                                 if (log.debugEnabled) {
                                     log.debug("hook (id:$hook.id) - request success")

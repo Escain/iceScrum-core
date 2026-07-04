@@ -974,7 +974,7 @@ class ApplicationSupport {
         long attachmentableId = params.long('attachmentable')
         switch (params.type) {
             case 'story':
-                attachmentable = Story.getInProject(workspace, attachmentableId).list()
+                attachmentable = Story.getInProject(workspace, attachmentableId).get() // Grails 7: uniqueResult named query -> get()
                 break
             case 'task':
                 attachmentable = Task.getInProject(workspace, attachmentableId)
@@ -983,10 +983,10 @@ class ApplicationSupport {
                 attachmentable = Feature.withFeature(workspace, attachmentableId, params.workspaceType)
                 break
             case 'release':
-                attachmentable = Release.getInProject(workspace, attachmentableId).list()
+                attachmentable = Release.getInProject(workspace, attachmentableId).get() // Grails 7: uniqueResult named query -> get()
                 break
             case 'sprint':
-                attachmentable = Sprint.getInProject(workspace, attachmentableId).list()
+                attachmentable = Sprint.getInProject(workspace, attachmentableId).get() // Grails 7: uniqueResult named query -> get()
                 break
             case 'project':
                 attachmentable = Project.get(attachmentableId)

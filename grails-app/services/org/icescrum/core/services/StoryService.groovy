@@ -239,7 +239,7 @@ class StoryService extends IceScrumEventPublisher {
             update(story)
             pushService.disablePushForThisThread()
             story.tasks.findAll { it.state == Task.STATE_WAIT }.each { Task task ->
-                task.backlog = newParentSprint
+                newParentSprint.addToTasks(task) // manage both sides of the association (Grails 7: setting task.backlog alone did not persist)
                 taskService.update(task, user)
             }
             pushService.enablePushForThisThread()
@@ -626,7 +626,7 @@ class StoryService extends IceScrumEventPublisher {
             task.type = Task.TYPE_URGENT
             task.state = Task.STATE_WAIT
             task.description = (story.affectVersion ? i18nService.message(code: 'is.story.affectVersion') + ': ' + story.affectVersion : '') + (task.description ?: '')
-            def sprint = (Sprint) Sprint.findCurrentSprint(project.id).list()
+            def sprint = (Sprint) Sprint.findCurrentSprint(project.id).get() // Grails 7: uniqueResult named query -> get()
             if (!sprint) {
                 throw new BusinessException(code: 'is.story.error.not.acceptedAsUrgentTask')
             }

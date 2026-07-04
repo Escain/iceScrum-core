@@ -45,8 +45,8 @@ class ClicheService {
         int allTotal = 0
         int remainingTotal = 0
         def storyTypes = grailsApplication.config.icescrum.resourceBundles.storyTypes.keySet()
-        def allPointsByType = storyTypes.collectEntries { storyType -> [(storyType): 0] }
-        def remainingPointsByType = storyTypes.collectEntries { storyType -> [(storyType): 0] }
+        def allPointsByType = storyTypes.collectEntries { storyType -> [(storyType as Integer): 0] }
+        def remainingPointsByType = storyTypes.collectEntries { storyType -> [(storyType as Integer): 0] }
         stories.each { Story story ->
             if (story.effort > 0) {
                 allPointsByType[story.type] += story.effort
@@ -119,7 +119,8 @@ class ClicheService {
                 "${Cliche.PROJECT_POINTS}"(projectPoints.allTotal)
                 // Project remaining points
                 storyTypes.each { storyType ->
-                    "${grailsApplication.config.icescrum.resourceBundles.storyTypesCliche[storyType]}"(projectPoints.remaining[storyType])
+                    // storyType comes from the config NavigableMap keySet (String in Grails 7); the points maps are Integer-keyed.
+                    "${grailsApplication.config.icescrum.resourceBundles.storyTypesCliche[storyType]}"(projectPoints.remaining[storyType as Integer])
                 }
                 "${Cliche.PROJECT_REMAINING_POINTS}"(projectPoints.remainingTotal)
                 // Release remaining points

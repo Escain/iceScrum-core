@@ -274,6 +274,7 @@ class ProjectService extends IceScrumEventPublisher {
                     sprintReviewHour: projectXml.preferences.sprintReviewHour.text(),
                     sprintRetrospectiveHour: projectXml.preferences.sprintRetrospectiveHour.text(),
                     timezone: projectXml.preferences.timezone.text() ?: grailsApplication.config.icescrum.timezone.default)
+            project.preferences.project = project // Grails 7: set the inverse side; import validates before the cascade-save would wire it
 
             options.project = project
             options.userUIDByImportedID = [:]

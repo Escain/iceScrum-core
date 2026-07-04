@@ -295,7 +295,7 @@ class Story extends BacklogElement implements Cloneable, Serializable {
     }
 
     static Story withStory(long projectId, long id) {
-        Story story = (Story) getInProject(projectId, id).list()
+        Story story = (Story) getInProject(projectId, id).get() // Grails 7: uniqueResult named query returns single object via get(), not list()
         if (!story) {
             throw new ObjectNotFoundException(id, 'Story')
         }
@@ -437,7 +437,7 @@ class Story extends BacklogElement implements Cloneable, Serializable {
         if (obj == null) {
             return false
         }
-        if (getClass() != obj.getClass()) {
+        if (org.hibernate.Hibernate.getClass(this) != org.hibernate.Hibernate.getClass(obj)) { // Grails 7/Hibernate 5.6: proxy-safe (obj may be a lazy proxy)
             return false
         }
         Story other = (Story) obj

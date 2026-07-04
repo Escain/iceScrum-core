@@ -82,7 +82,9 @@ abstract class IceScrumEventPublisher {
                 dirtyProperties[it] = object.getPersistentValue(it)
             }
         } else if (type == IceScrumEventType.BEFORE_DELETE) {
-            new DefaultGrailsDomainClass(object.class).persistentProperties.each { property ->
+            // Grails 7: DefaultGrailsDomainClass no longer exposes persistentProperties; read them from the GORM mapping context.
+            def entity = Holders.grailsApplication.mappingContext.getPersistentEntity(object.class.name)
+            entity.persistentProperties.each { property ->
                 def name = property.name
                 dirtyProperties[name] = object.properties[name]
             }

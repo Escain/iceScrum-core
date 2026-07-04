@@ -129,9 +129,9 @@ class Feature extends BacklogElement implements Serializable {
     static Feature withFeature(long workspaceId, long id, String workspaceType = WorkspaceType.PROJECT) {
         Feature feature
         if (workspaceType == WorkspaceType.PROJECT) {
-            feature = (Feature) getInProject(workspaceId, id).list()
+            feature = (Feature) getInProject(workspaceId, id).get() // Grails 7: uniqueResult named query returns single object via get(), not list()
         } else if (workspaceType == WorkspaceType.PORTFOLIO) {
-            feature = (Feature) getInPortfolio(workspaceId, id).list()
+            feature = (Feature) getInPortfolio(workspaceId, id).get() // Grails 7: uniqueResult named query returns single object via get(), not list()
         }
         if (!feature) {
             throw new ObjectNotFoundException(id, 'Feature')
@@ -234,7 +234,7 @@ class Feature extends BacklogElement implements Serializable {
         if (obj == null) {
             return false
         }
-        if (getClass() != obj.getClass()) {
+        if (org.hibernate.Hibernate.getClass(this) != org.hibernate.Hibernate.getClass(obj)) { // Grails 7/Hibernate 5.6: proxy-safe (obj may be a lazy proxy)
             return false
         }
         final Feature other = (Feature) obj

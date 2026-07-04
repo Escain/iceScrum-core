@@ -311,7 +311,8 @@ class IcescrumCoreGrailsPlugin extends Plugin {
                         progress.buffer = []
                     }
                     progress.buffer << source.propertyName
-                    def newValue = (progress.buffer.size() * 90) / (config.size() * progress.multiple)
+                    def divisor = (config?.size() ?: 0) * progress.multiple // Grails 7: guard divide-by-zero (see import)
+                    def newValue = divisor ? (progress.buffer.size() * 90) / divisor : 90
                     progress.updateProgress(newValue, source.propertyName)
                 }
             }
@@ -332,7 +333,10 @@ class IcescrumCoreGrailsPlugin extends Plugin {
                         progress.buffer = []
                     }
                     progress.buffer << name
-                    def newValue = (progress.buffer.size() * 90) / (config.size() * progress.multiple)
+                    // Grails 7: the icescrum.import registry init loop was lost, so config can be empty;
+                    // guard the progress computation against divide-by-zero (progress is only cosmetic).
+                    def divisor = (config?.size() ?: 0) * progress.multiple
+                    def newValue = divisor ? (progress.buffer.size() * 90) / divisor : 90
                     progress.updateProgress(newValue, name)
                 }
             }
