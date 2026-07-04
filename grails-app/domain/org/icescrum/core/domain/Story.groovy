@@ -166,7 +166,7 @@ class Story extends BacklogElement implements Cloneable, Serializable {
     }
 
     String getPermalink() {
-        return Holders.grailsApplication.config.icescrum.serverURL + '/p/' + backlog.pkey + '-' + this.uid
+        return org.icescrum.core.support.ApplicationSupport.serverURLForLink() + '/p/' + backlog.pkey + '-' + this.uid
     }
 
     List<Story> getSameBacklogStories() {

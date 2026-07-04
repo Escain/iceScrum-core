@@ -328,7 +328,7 @@ class Feature extends BacklogElement implements Serializable {
     }
 
     String getPermalink() {
-        return backlog ? Holders.grailsApplication.config.icescrum.serverURL + '/p/' + backlog.pkey + '-F' + this.uid : ''
+        return backlog ? org.icescrum.core.support.ApplicationSupport.serverURLForLink() + '/p/' + backlog.pkey + '-F' + this.uid : ''
     }
 
     static search(project, options) {

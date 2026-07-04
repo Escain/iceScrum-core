@@ -132,6 +132,14 @@ class ApplicationSupport {
         return serverUrl
     }
 
+    // Base URL for permalinks (stories/tasks/features). Prefer the live request's URL; otherwise fall back to
+    // the configured icescrum.serverURL. The typed getProperty lookup returns '' for an unset key — plain
+    // `config.icescrum.serverURL` returns an empty NavigableMap that stringifies to "[:]", which is how a
+    // permalink like "[:]/p/PKEY-T38" is produced when the key isn't set (e.g. in production).
+    static String serverURLForLink() {
+        return serverURL() ?: Holders.grailsApplication.config.getProperty('icescrum.serverURL', String, '')
+    }
+
     static String getDatabaseName() {
         def url = Holders.grailsApplication.config.dataSource.url
         return url.split('/').toList().last().tokenize('?')[0]

@@ -255,7 +255,7 @@ class Task extends BacklogElement implements Serializable {
     }
 
     String getPermalink() {
-        return Holders.grailsApplication.config.icescrum.serverURL + '/p/' + this.parentProject.pkey + '-T' + this.uid
+        return org.icescrum.core.support.ApplicationSupport.serverURLForLink() + '/p/' + this.parentProject.pkey + '-T' + this.uid
     }
 
     static search(project, options, rowCount = false) {
