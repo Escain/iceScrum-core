@@ -58,7 +58,10 @@ class TokenAuthenticationFilter extends GenericFilterBean {
                     }
                     SecurityContextHolder.getContext().setAuthentication(authResult)
                 } else {
-                    System.out.println("Invalid " + TokenExtractor.TOKEN_HEADER + ' ' + token + " in request sendError ${HttpServletResponse.SC_UNAUTHORIZED}")
+                    // Security: never log the raw bearer token (leaks into stdout/log files).
+                    if (this.logger.isDebugEnabled()) {
+                        this.logger.debug("Invalid ${TokenExtractor.TOKEN_HEADER} in request, sendError ${HttpServletResponse.SC_UNAUTHORIZED}")
+                    }
                     ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED)
                 }
                 if (this.logger.isDebugEnabled()) {

@@ -157,7 +157,7 @@ class ProjectService extends IceScrumEventPublisher {
                 }
             }
             cliches?.eachWithIndex { cliche, index ->
-                def xmlRoot = new XmlSlurper().parseText(cliche.data)
+                def xmlRoot = org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(cliche.data)
                 if (xmlRoot) {
                     values << [
                             (Story.STATE_SUGGESTED) : xmlRoot."${Cliche.SUGGESTED_STORIES}".toInteger(),
@@ -194,7 +194,7 @@ class ProjectService extends IceScrumEventPublisher {
                 }
             }
             cliches?.eachWithIndex { cliche, index ->
-                def xmlRoot = new XmlSlurper().parseText(cliche.data)
+                def xmlRoot = org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(cliche.data)
                 if (xmlRoot) {
                     def a = xmlRoot."${Cliche.PROJECT_POINTS}".toBigDecimal()
                     def b = xmlRoot."${Cliche.PROJECT_REMAINING_POINTS}".toBigDecimal()
@@ -468,7 +468,7 @@ class ProjectService extends IceScrumEventPublisher {
             String cleanedXmlText = ServicesUtils.cleanXml(xmlText)
             def exportXML
             try {
-                exportXML = new XmlSlurper().parseText(cleanedXmlText)
+                exportXML = org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(cleanedXmlText)
             } catch (SAXParseException e) {
                 if (log.debugEnabled) {
                     log.debug(e.message)

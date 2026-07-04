@@ -1,9 +1,13 @@
 package org.icescrum.core.utils
 
 
+import groovy.xml.XmlSlurper
 import org.eclipse.mylyn.wikitext.parser.MarkupParser
 import org.eclipse.mylyn.wikitext.parser.builder.HtmlDocumentBuilder
 import org.eclipse.mylyn.wikitext.textile.TextileLanguage
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.safety.Safelist
 
 /*
  * Copyright (c) 2015 Kagilum SAS
@@ -55,6 +59,17 @@ class ServicesUtils {
         return out.toString()
     }
 
+    // Security (XXE): an XmlSlurper that rejects DOCTYPE declarations and never resolves external entities, so
+    // parsing untrusted XML (project import, RSS feeds, cliché data) can't read local files or trigger SSRF.
+    static XmlSlurper secureXmlSlurper() {
+        XmlSlurper slurper = new XmlSlurper()
+        slurper.setFeature('http://apache.org/xml/features/disallow-doctype-decl', true)
+        slurper.setFeature('http://xml.org/sax/features/external-general-entities', false)
+        slurper.setFeature('http://xml.org/sax/features/external-parameter-entities', false)
+        slurper.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', false)
+        return slurper
+    }
+
     static String textileToHtml(String text) {
         if (text) {
             def out = new StringWriter()
@@ -66,6 +81,14 @@ class ServicesUtils {
             markupParser.parse(text)
             String html = out.toString()
             if (html) {
+                // Security: this HTML is stored, echoed to every project member and $compile'd client-side
+                // (bind-html-compile). Sanitize it against an allow-list first so injected <script>, event
+                // handlers and javascript:/data: URLs can't execute. The server-generated checkbox markup below
+                // is added AFTER sanitization so it is trusted.
+                Safelist safelist = Safelist.relaxed()
+                        .addAttributes('a', 'target')
+                        .addEnforcedAttribute('a', 'rel', 'noopener noreferrer')
+                html = Jsoup.clean(html, '', safelist, new Document.OutputSettings().prettyPrint(false))
                 html = html.replaceAll('\\[ *\\]', '<i class="fa fa-square-o" markitup-checkbox="options" tabindex="0"></i>');
                 html = html.replaceAll('\\[ *[xX] *\\]', '<i class="fa fa-check-square-o" markitup-checkbox="options" tabindex="0"></i>');
             }

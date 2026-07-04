@@ -93,6 +93,14 @@ class ApplicationSupport {
             doFilter: { req, res -> throw new UnsupportedOperationException() }
     ] as FilterChain
 
+    // A 256-bit cryptographically-random secret (base64). Used as the fallback for signing keys that were
+    // previously hardcoded in source; operators should set a stable value via env/external config in production.
+    static String randomSecret() {
+        byte[] bytes = new byte[32]
+        new java.security.SecureRandom().nextBytes(bytes)
+        return bytes.encodeBase64().toString()
+    }
+
     static String serverURL() {
         // Assets pipeline replaces the default grails link generator by its own LinkGenerator
         // If there is no grails.serverURL, it uses a custom way to generate URLs through AssetProcessorService.makeServerURL that calls HttpServletRequests.getBaseUrlWithScheme
@@ -429,9 +437,15 @@ class ApplicationSupport {
                 if (log.debugEnabled) {
                     log.debug "Unzipping : ${entry.name}"
                 }
+                // Security (zip-slip): resolve each entry under the destination and reject any that escape it.
+                File destFile = new File(destination, entry.name)
+                String destRoot = destination.canonicalPath + File.separator
+                if (!destFile.canonicalPath.startsWith(destRoot)) {
+                    throw new SecurityException("Illegal zip entry outside target directory: ${entry.name}")
+                }
                 if (!entry.isDirectory()) {
-                    new File(destination.absolutePath + File.separator + entry.name).parentFile?.mkdirs()
-                    def output = new FileOutputStream(destination.absolutePath + File.separator + entry.name)
+                    destFile.parentFile?.mkdirs()
+                    def output = new FileOutputStream(destFile)
                     output.withStream {
                         int len = 0
                         byte[] buffer = new byte[4096]
@@ -440,7 +454,7 @@ class ApplicationSupport {
                         }
                     }
                 } else {
-                    new File(destination.absolutePath + File.separator + entry.name).mkdir()
+                    destFile.mkdir()
                 }
             }
         }

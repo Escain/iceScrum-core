@@ -180,14 +180,25 @@ public final class UtilsWebComponents {
 
     private static FileUploadInfo getFileUploadInfo(def params) {
 
+        // Security: the upload filename is fully attacker-controlled; reduce it to a bare basename so a value
+        // like '../../../ROOT/shell.jsp' can't escape the temp dir (arbitrary file write -> RCE).
+        String safeName = org.apache.commons.io.FilenameUtils.getName((String) params.remove('flowFilename'))
+        if (!safeName) {
+            throw new SecurityException("Missing or illegal upload filename")
+        }
         def info = ['chunkSize'   : (params.remove('flowChunkSize') ?: -1).toInteger(),
                     'totalSize'   : (params.remove('flowTotalSize') ?: -1).toLong(),
                     'totalChunks' : params.int('flowTotalChunks'),
                     'identifier'  : params.remove('flowIdentifier'),
-                    'filename'    : params.remove('flowFilename'),
+                    'filename'    : safeName,
                     'relativePath': params.remove("flowRelativePath")]
 
-        def test = new File(System.getProperty("java.io.tmpdir"), (String) info.filename)
+        def tmpDir = new File(System.getProperty("java.io.tmpdir")).canonicalFile
+        def test = new File(tmpDir, safeName).canonicalFile
+        // Defence in depth: reject anything that still resolves outside the temp directory.
+        if (test.path != tmpDir.path && !test.path.startsWith(tmpDir.path + File.separator)) {
+            throw new SecurityException("Illegal upload path for filename: $safeName")
+        }
         info.filePath = test.absolutePath + ".temp"
         return FileUploadInfoStorage.instance.get(info)
     }

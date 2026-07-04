@@ -238,7 +238,9 @@ class UserService extends IceScrumEventPublisher {
 
     def resetPassword(User user) {
         def pool = ['a'..'z', 'A'..'Z', 0..9, '_'].flatten()
-        Random rand = new Random(System.currentTimeMillis())
+        // Security: java.util.Random seeded by the (guessable) current time makes the reset password
+        // brute-forceable; use a CSPRNG.
+        def rand = new java.security.SecureRandom()
         def passChars = (0..10).collect { pool[rand.nextInt(pool.size())] }
         def password = passChars.join('')
         update(user, [pwd: password])

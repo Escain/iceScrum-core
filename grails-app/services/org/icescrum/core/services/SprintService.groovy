@@ -245,7 +245,7 @@ class SprintService extends IceScrumEventPublisher {
         clicheService.createOrUpdateDailyTasksCliche(sprint)
         sprint.cliches?.sort { a, b -> a.datePrise <=> b.datePrise }?.eachWithIndex { cliche, index ->
             if (cliche.datePrise <= date) {
-                def xmlRoot = new XmlSlurper().parseText(cliche.data)
+                def xmlRoot = org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(cliche.data)
                 if (xmlRoot) {
                     lastDaycliche = cliche.datePrise
                     def currentRemaining = xmlRoot."${Cliche.REMAINING_TIME}".toFloat()
@@ -292,7 +292,7 @@ class SprintService extends IceScrumEventPublisher {
         clicheService.createOrUpdateDailyTasksCliche(sprint)
         sprint.cliches?.sort { a, b -> a.datePrise <=> b.datePrise }?.eachWithIndex { cliche, index ->
             if (cliche.datePrise <= date) {
-                def xmlRoot = new XmlSlurper().parseText(cliche.data)
+                def xmlRoot = org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(cliche.data)
                 if (xmlRoot) {
                     lastDaycliche = cliche.datePrise
                     if ((DateUtils.isDateWeekend(lastDaycliche) && !sprint.parentRelease.parentProject.preferences.hideWeekend) || !DateUtils.isDateWeekend(lastDaycliche)) {
@@ -315,7 +315,7 @@ class SprintService extends IceScrumEventPublisher {
         clicheService.createOrUpdateDailyTasksCliche(sprint)
         sprint.cliches?.sort { a, b -> a.datePrise <=> b.datePrise }?.eachWithIndex { cliche, index ->
             if (cliche.datePrise <= date) {
-                def xmlRoot = new XmlSlurper().parseText(cliche.data)
+                def xmlRoot = org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(cliche.data)
                 if (xmlRoot) {
                     lastDaycliche = cliche.datePrise
                     if ((DateUtils.isDateWeekend(lastDaycliche) && !sprint.parentRelease.parentProject.preferences.hideWeekend) || !DateUtils.isDateWeekend(lastDaycliche)) {

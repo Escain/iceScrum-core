@@ -192,7 +192,7 @@ class ReleaseService extends IceScrumEventPublisher {
             }
         }
         cliches?.eachWithIndex { cliche, index ->
-            def xmlRoot = new XmlSlurper().parseText(cliche.data)
+            def xmlRoot = org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(cliche.data)
             if (xmlRoot) {
                 def storyTypes = grailsApplication.config.icescrum.resourceBundles.storyTypes.keySet()
                 def sprintEntry = [:]
@@ -211,7 +211,7 @@ class ReleaseService extends IceScrumEventPublisher {
     def releaseVelocityValues(Release release) {
         def values = []
         Cliche.findAllByParentTimeBoxAndType(release, Cliche.TYPE_CLOSE, [sort: "datePrise", order: "asc"])?.each { cliche ->
-            def xmlRoot = new XmlSlurper().parseText(cliche.data)
+            def xmlRoot = org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(cliche.data)
             if (xmlRoot) {
                 values << [
                         userstories     : xmlRoot."${Cliche.FUNCTIONAL_STORY_VELOCITY}".toBigDecimal(),
@@ -230,7 +230,7 @@ class ReleaseService extends IceScrumEventPublisher {
         def capacity = 0
         def label = ""
         Cliche.findAllByParentTimeBox(release, [sort: "datePrise", order: "asc"])?.each { cliche ->
-            def xmlRoot = new XmlSlurper().parseText(cliche.data)
+            def xmlRoot = org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(cliche.data)
             if (xmlRoot) {
                 if (cliche.type == Cliche.TYPE_ACTIVATION) {
                     capacity = xmlRoot."${Cliche.SPRINT_CAPACITY}".toBigDecimal()

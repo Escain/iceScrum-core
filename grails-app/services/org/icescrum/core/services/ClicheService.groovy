@@ -207,7 +207,7 @@ class ClicheService {
                 // That means that if there is already a cliche to update, we need to merge data instead of replacing thus preserving existing data we don't own
                 // There is no easy way to merge data with XML nodes so we convert them to maps to merge them, then convert them back to XML through the builder
                 def xmlToMap = { String data ->
-                    new XmlSlurper().parseText(data).children().collectEntries {
+                    org.icescrum.core.utils.ServicesUtils.secureXmlSlurper().parseText(data).children().collectEntries {
                         [it.name(), it.text()]
                     }
                 }

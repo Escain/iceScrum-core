@@ -30,8 +30,10 @@ class TokenExtractor {
     protected static final String TOKEN_PARAMETER = "icescrum-token"
 
     static String getToken(HttpServletRequest request) {
+        // Security: accept the token only from the header, never from a URL query parameter — tokens in URLs
+        // leak into access logs, browser history and Referer headers. (No frontend uses the query form.)
         String token = request.getHeader(TOKEN_HEADER)
-        token = token ?: request.getParameter(TOKEN_PARAMETER) ?: lookForAppsSpecificTokens(request)
+        token = token ?: lookForAppsSpecificTokens(request)
         return token
     }
 
