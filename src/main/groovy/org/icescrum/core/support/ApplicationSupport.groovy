@@ -101,6 +101,36 @@ class ApplicationSupport {
         return bytes.encodeBase64().toString()
     }
 
+    // A per-install signing secret that is STABLE across restarts (unlike randomSecret()). Order of precedence:
+    // 1) the env var, 2) a key file under ~/.icescrum/, 3) a freshly generated key persisted to that file.
+    // This replaces the old hardcoded shared key without invalidating remember-me cookies on every restart
+    // (a per-start random key logs everyone out whenever the server is bounced).
+    static String persistedSecret(String envVarName, String fileName) {
+        String fromEnv = System.getenv(envVarName)
+        if (fromEnv) {
+            return fromEnv
+        }
+        File keyFile = new File(new File(System.getProperty('user.home'), '.icescrum'), fileName)
+        try {
+            if (keyFile.exists()) {
+                String existing = keyFile.text.trim()
+                if (existing) {
+                    return existing
+                }
+            }
+            String secret = randomSecret()
+            keyFile.parentFile.mkdirs()
+            keyFile.text = secret
+            keyFile.setReadable(false, false); keyFile.setReadable(true, true)   // owner-only
+            keyFile.setWritable(false, false); keyFile.setWritable(true, true)
+            return secret
+        } catch (Exception e) {
+            // Read-only home or similar: fall back to a per-run secret (remember-me won't survive a restart,
+            // but the server still starts and logins work within this run).
+            return randomSecret()
+        }
+    }
+
     static String serverURL() {
         // Assets pipeline replaces the default grails link generator by its own LinkGenerator
         // If there is no grails.serverURL, it uses a custom way to generate URLs through AssetProcessorService.makeServerURL that calls HttpServletRequests.getBaseUrlWithScheme
