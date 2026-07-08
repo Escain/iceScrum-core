@@ -24,11 +24,16 @@
 
 package org.icescrum.core.domain
 
+import grails.gorm.dirty.checking.DirtyCheck
 import org.grails.comments.Commentable
 import org.grails.taggable.Taggable
 import org.icescrum.core.utils.ServicesUtils
 import org.icescrum.plugins.attachmentable.interfaces.Attachmentable
 
+// @DirtyCheck: GORM 7 tracks dirtiness through setters generated at compile time in domain classes only.
+// This class lives outside grails-app/domain, so without the annotation writes to the properties it
+// declares (name, description, notes, ...) never mark the entity dirty and updates are silently lost.
+@DirtyCheck
 abstract class BacklogElement implements Attachmentable, Commentable, Serializable, Taggable {
 
     static final long serialVersionUID = -6800252500987149051L
