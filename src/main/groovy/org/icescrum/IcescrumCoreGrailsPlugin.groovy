@@ -396,10 +396,27 @@ class IcescrumCoreGrailsPlugin extends Plugin {
                     session.progress = new ProgressSupport()
                 }
                 session.progress.updateProgress(50, message(code: 'is.report.processing'))
+                // getRealPath is null when the WAR runs unexploded (java -jar): extract the
+                // precompiled subreports to a temp dir once so $P{SUBREPORT_DIR} + '<name>.jasper'
+                // stays resolvable as a plain file path.
+                String subreportDir = servletContext.getRealPath('/reports/subreports')
+                if (!subreportDir) {
+                    File extracted = new File(System.getProperty('java.io.tmpdir'), 'icescrum-subreports')
+                    extracted.mkdirs()
+                    servletContext.getResourcePaths('/reports/subreports/')?.each { String path ->
+                        File target = new File(extracted, path.tokenize('/').last())
+                        if (!target.exists()) {
+                            servletContext.getResourceAsStream(path)?.withStream { input ->
+                                target.bytes = input.bytes
+                            }
+                        }
+                    }
+                    subreportDir = extracted.absolutePath
+                }
                 if (parameters) {
-                    parameters.SUBREPORT_DIR = "${servletContext.getRealPath('/reports/subreports')}/"
+                    parameters.SUBREPORT_DIR = "${subreportDir}/"
                 } else {
-                    parameters = [SUBREPORT_DIR: "${servletContext.getRealPath('/reports/subreports')}/"]
+                    parameters = [SUBREPORT_DIR: "${subreportDir}/"]
                 }
 
                 def reportDef = new JasperReportDef(name: reportName,
