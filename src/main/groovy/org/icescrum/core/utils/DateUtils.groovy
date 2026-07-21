@@ -59,9 +59,16 @@ class DateUtils {
         }
         try {
             return new SimpleDateFormat('yyyy-MM-dd HH:mm:ss').parse(date)
-        } catch (Exception e) { // Ugly hack because export is toString and if java.util.Date has been exported instead of a java.sql.Date the format is different
-            String utcDate = date.take(20) + 'UTC' + date.drop(23) // Fix date that has been exported with server not UTC
-            return new SimpleDateFormat('EEE MMM d HH:mm:ss zzz yyyy').parse(utcDate)
+        } catch (Exception e) { // Export is toString: java.util.Date (e.g. entities served from the 2nd-level cache) formats as 'EEE MMM d HH:mm:ss zzz yyyy' instead of the java.sql format above
+            try {
+                // Date.toString is always English; the zone abbreviation may be 4 letters (CEST)
+                return new SimpleDateFormat('EEE MMM d HH:mm:ss zzz yyyy', Locale.ENGLISH).parse(date)
+            } catch (Exception e2) {
+                // Legacy hack for exports with an unparseable zone: reinterpret the wall time as UTC.
+                // Only correct for 3-letter zone names — a 4-letter one (CEST) leaves a stray letter.
+                String utcDate = date.take(20) + 'UTC' + date.drop(23)
+                return new SimpleDateFormat('EEE MMM d HH:mm:ss zzz yyyy', Locale.ENGLISH).parse(utcDate)
+            }
         }
     }
 
