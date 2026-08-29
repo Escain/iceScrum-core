@@ -74,7 +74,10 @@ class AttachmentableService {
         }
 
         def link = new AttachmentLink(attachment: attachment, attachmentRef: attachmentable.id, type: GrailsNameUtils.getPropertyName(attachmentable.class), attachmentRefClass: attachmentableClass)
-        link.save()
+        // flush: the attachment CREATE listener (ListenerService.attachmentCreate -> AttachmentService.getWorkspace)
+        // queries AttachmentLink.findByAttachment within the same transaction; without an explicit flush the
+        // pending insert is not yet visible on PostgreSQL (H2 happened to flush in time) -> NPE and rollback
+        link.save(flush: true)
 
         if (file instanceof File) {
             // Save the file on disk

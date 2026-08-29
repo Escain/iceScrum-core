@@ -79,7 +79,11 @@ trait Attachmentable {
         AttachmentLink.getTotalAttachments(this).list()[0]
     }
 
-    private getAttachmentableService() {
+    // NOT private: trait private methods are compiled into the trait helper in
+    // mangled form and are invisible to the dynamic property resolution used by
+    // 'attachmentableService' above (MissingPropertyException on the implementing
+    // domain class, e.g. Task, breaking every attachment upload).
+    def getAttachmentableService() {
         Holders.applicationContext.attachmentableService
     }
 }
